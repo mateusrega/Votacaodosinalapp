@@ -1,0 +1,67 @@
+Firebase Setup Instructions for School Bell App
+================================================
+
+1. Create a new Firebase project:
+   - Go to https://console.firebase.google.com/
+   - Click "Create a project"
+   - Enter project name: "school-bell-app"
+   - Enable Google Analytics (optional)
+
+2. Enable Authentication:
+   - Go to Authentication > Sign-in method
+   - Enable Email/Password authentication
+   - Create an admin user account
+
+3. Create Firestore Database:
+   - Go to Firestore Database
+   - Create database in production mode
+   - Choose your preferred location
+   - Apply the rules from firebase.rules file
+
+4. Enable Storage:
+   - Go to Storage
+   - Get started with default rules
+   - Upload audio files to /audio/ folder
+
+5. Get Configuration:
+   - Go to Project Settings > General
+   - Scroll to "Your apps" section
+   - Click on web app icon (</>)
+   - Copy the configuration object
+   - Create .env.local file with the values
+
+6. Collections Structure:
+   
+   schedules/
+   ├── {scheduleId}
+   │   ├── time: string (HH:MM format)
+   │   ├── songId: string
+   │   ├── days: array of strings
+   │   ├── active: boolean
+   │   └── createdAt: timestamp
+   
+   songs/
+   ├── {songId}
+   │   ├── title: string
+   │   ├── duration: string
+   │   ├── audioUrl: string
+   │   ├── active: boolean
+   │   └── createdAt: timestamp
+
+7. Security Rules:
+   - Copy the rules from firebase.rules
+   - Apply them in Firestore Rules tab
+   - Test the rules with the simulator
+
+8. Storage Structure:
+   audio/
+   ├── hino-nacional.mp3
+   ├── sinal-entrada.mp3
+   ├── sinal-recreio.mp3
+   └── sinal-almoco.mp3
+
+Remember to:
+- Keep your API keys secure
+- Use environment variables for sensitive data
+- Test authentication and permissions
+- Set up proper backup strategies
