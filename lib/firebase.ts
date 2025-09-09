@@ -1,6 +1,7 @@
+// lib/firebase.ts
 import { initializeApp } from 'firebase/app'
-import { getFirestore } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
+import { getFirestore } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
 
 const firebaseConfig = {
@@ -12,10 +13,12 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 }
 
+// Inicializa Firebase
 const app = initializeApp(firebaseConfig)
 
-export const db = getFirestore(app)
+// Exporta os serviços do Firebase
 export const auth = getAuth(app)
+export const db = getFirestore(app)
 export const storage = getStorage(app)
 
 export default app
