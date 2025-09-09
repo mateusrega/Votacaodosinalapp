@@ -1,21 +1,113 @@
-import { initializeApp } from 'firebase/app'
-import { getAuth } from 'firebase/auth'
-import { getFirestore } from 'firebase/firestore'
-import { getStorage } from 'firebase/storage'
+'use client'
 
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
+import { useState } from 'react'
+import { Lock, Eye, EyeOff } from 'lucide-react'
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth'
+import { auth } from '@/lib/firebase' // import correto
+
+interface AuthGateProps {
+  children: React.ReactNode
 }
 
-const app = initializeApp(firebaseConfig)
+export default function AuthGate({ children }: AuthGateProps) {
+  const [user, setUser] = useState<any>(null)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState('')
 
-export const auth = getAuth(app)
-export const db = getFirestore(app)
-export const storage = getStorage(app)
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault()
+    try {
+      const result = await signInWithEmailAndPassword(auth, email, password)
+      setUser(result.user)
+      setError('')
+    } catch (err: any) {
+      setError('Falha no login: ' + err.message)
+      setPassword('')
+    }
+  }
 
-export default app
+  async function handleLogout() {
+    await signOut(auth)
+    setUser(null)
+  }
+
+  if (user) {
+    return (
+      <div>
+        <div className="flex justify-between items-center p-4 bg-gray-100">
+          <p>Logado como: {user.email}</p>
+          <button onClick={handleLogout} className="bg-red-500 text-white px-3 py-1 rounded">
+            Sair
+          </button>
+        </div>
+        {children}
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
+        <div className="text-center mb-8">
+          <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Lock className="w-8 h-8 text-blue-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">Área Administrativa</h1>
+          <p className="text-gray-600">Digite seu e-mail e senha para acessar o painel</p>
+        </div>
+
+        <form onSubmit={handleLogin} className="space-y-6">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              E-mail
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Digite seu e-mail"
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              Senha
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
+                placeholder="Digite sua senha"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+          </div>
+
+          {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors"
+          >
+            Entrar
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
